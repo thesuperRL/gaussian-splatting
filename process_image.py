@@ -3,16 +3,15 @@ import torchvision.transforms.functional as func
 import torchvision
 import matplotlib.pyplot as plt
 
-DEVICE = torch.device("cpu")
-
-def tensorify(image_path, resize=None):
+def tensorify(image_path, resize = None, device = 'cpu'):
     raw_image = torchvision.io.decode_image(image_path, "RGB")
     float_image = (raw_image.to(torch.float32)) / 255.0
     if resize is not None:
         float_image = func.resize(float_image, resize)
     permuted_image = float_image.permute(1, 2, 0)
-    final = permuted_image.to(DEVICE)
-    return final, final.shape
+    if device:
+        permuted_image = permuted_image.to(device)
+    return permuted_image, permuted_image.shape
 
 def assign_coordinates(tensor_img, bounds = [-1, 1]):
     shape = list(tensor_img.shape) # results in (H, W, 3)
