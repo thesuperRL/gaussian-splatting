@@ -35,7 +35,7 @@ def initialize_parameters(tensor_img, coords, N = GAUSSIAN_AMT):
     alpha = torch.zeros(N, 1)
     param_alp = nn.Parameter(alpha)
 
-    radians = torch.zeros(N, 1)
+    radians = torch.zeros(N, )
     radians = radians.uniform_(0, 2 * torch.pi)
     param_rad = nn.Parameter(radians)
 

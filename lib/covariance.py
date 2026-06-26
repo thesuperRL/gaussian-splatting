@@ -11,8 +11,8 @@ def build_sigma(scale, radians):
     sin = torch.sin(radians)
     col1 = torch.stack((cos, sin), dim=1)
     col2 = torch.stack((-sin, cos), dim=1) 
-    r = torch.stack((col1, col2), dim=2).squeeze(dim=3)
-    
+    r = torch.stack((col1, col2), dim=2)
+
     sigma = r @ s @ s.transpose(-1, -2) @ r.transpose(-1, -2)
     sigma_inv = torch.linalg.inv(sigma)
 
