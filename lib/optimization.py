@@ -5,10 +5,10 @@ from covariance import build_sigma
 from visualizer import gaussian_density, alpha_layering_render
 import matplotlib.pyplot as plt
 
-def optimize(img_path, size = [256, 256], iter = 1000, showper = 20):
+def optimize(img_path, size = [256, 256], splats = 1000, iter = 1000, verbose = False, showper = 20):
     image, shape = tensorify(img_path, resize = size)
     coords = assign_coordinates(image)
-    pos, scale, colors, alpha, rot = initialize_parameters(image, coords, N = 1000)
+    pos, scale, colors, alpha, rot = initialize_parameters(image, coords, N = splats)
     params = [pos, scale, colors, alpha, rot]
 
     optimizer = torch.optim.Adam(params, lr = 1e-2)
@@ -27,16 +27,17 @@ def optimize(img_path, size = [256, 256], iter = 1000, showper = 20):
         loss.backward()
         optimizer.step()
 
-        if showper and i % showper == 0:
+        if verbose:
             print(i)
             print(loss.item())
+        if showper and i % showper == 0:
             img_window.set_data(render.detach().numpy())
             plt.pause(0.0001)
     
     filename = f"../output/shu_{size[0]}_{size[1]}_{iter}.png"
-    plt.imsave(filename, render)
+    plt.imsave(filename, render.detach().numpy())
     plt.ioff()
     plt.show()
 
 if __name__ == "__main__":
-    optimize("images/shuak.png", size = [256, 256], iter = 1000, showper = 20)
+    optimize("images/shuak.png", size = [256, 256], splats = 2000, iter = 2000, showper = 20)
