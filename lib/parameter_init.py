@@ -5,7 +5,6 @@ import torch.nn as nn
 from bisect import bisect_left
 from math import log
 
-GAUSSIAN_AMT = 500
 DEVICE = "cpu"
 
 def binary_search_2d(item, body_x, body_y):
@@ -14,7 +13,7 @@ def binary_search_2d(item, body_x, body_y):
     y = bisect_left(body_y, item[1])
     return x, y
 
-def initialize_parameters(tensor_img, coords, N = GAUSSIAN_AMT):
+def initialize_parameters(tensor_img, coords, N = 500):
     positions = torch.empty(N, 2)
     positions = positions.uniform_(-1, 1)
     param_pos = nn.Parameter(positions)
