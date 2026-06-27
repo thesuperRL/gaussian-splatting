@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+
+# Training artifacts
+output/*
+!output/gifs/
+output/gifs/*
+!output/gifs/shu.gif
