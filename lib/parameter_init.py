@@ -32,7 +32,7 @@ def initialize_parameters(tensor_img, coords, N = GAUSSIAN_AMT):
         colors[index] = tensor_img[y, x]
     param_col = nn.Parameter(colors)
 
-    alpha = torch.zeros(N, 1)
+    alpha = torch.zeros(N, )
     param_alp = nn.Parameter(alpha)
 
     radians = torch.zeros(N, )
