@@ -76,7 +76,6 @@ def save_as_gif(dir, iter, base_ms = 50, end_ms = 1000):
 if __name__ == "__main__":
     iterations = 1000
 
-    dir = "/Users/ryanli/Documents/GitHub/gaussian-splatting/output/shu_256_256_1000"
-    #dir = optimize("images/shuak.png", size = [256, 256], splats = 2000, iter = iterations, showper = 20, store_each = True)
+    dir = optimize("images/shuak.png", size = [256, 256], splats = 2000, iter = iterations, showper = 20, store_each = True)
 
     save_as_gif(dir, iterations)
