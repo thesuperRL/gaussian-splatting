@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-def optimize(img_path, size = [256, 256], splats = 1000, iter = 1000, verbose = False, showper = 20, store_each = False):
-    dir = f"output/shu_{size[0]}_{size[1]}_{iter}"
+def optimize(img_path, name, size = [256, 256], splats = 1000, iter = 1000, verbose = False, showper = 20, storeper = 20, store_each = False, store_tensor = False):
+    dir = f"output/{name}_{size[0]}_{size[1]}_{iter}"
     Path(dir).mkdir(parents=True, exist_ok=True)
     
     image, shape = tensorify(img_path, resize = size)
@@ -16,7 +16,7 @@ def optimize(img_path, size = [256, 256], splats = 1000, iter = 1000, verbose = 
     pos, scale, colors, alpha, rot = initialize_parameters(image, coords, N = splats)
     params = [pos, scale, colors, alpha, rot]
 
-    optimizer = torch.optim.Adam(params, lr = 1e-2)
+    optimizer = torch.optim.Adam(params, lr = 1e-3)
     target = image
 
     if showper:
@@ -29,23 +29,29 @@ def optimize(img_path, size = [256, 256], splats = 1000, iter = 1000, verbose = 
         render = alpha_layering_render(G, colors, alpha, shape)
 
         loss = torch.mean((render - target) ** 2)
-        loss.backward()
+        scale_penalty = torch.mean((scale[:, 0] - scale[:, 1])**2)
+        total_loss = loss + 0.01 * scale_penalty
+        total_loss.backward()
         optimizer.step()
 
         if verbose:
             print(i)
             print(loss.item())
         if showper and i % showper == 0:
+            print(f"Iteration {i}")
             img_window.set_data(render.detach().numpy())
             plt.pause(0.0001)
-        if store_each:
-            filename = dir + f"/shu_{i}.png"
+        if store_each and i % storeper == 0:
+            filename = dir + f"/{name}_{i}.png"
             plt.imsave(filename, render.detach().numpy())
     
-    filename = dir+"/final.png"
+    filename = dir + "/final.png"
     plt.imsave(filename, render.detach().numpy())
     plt.ioff()
-    plt.show()
+    plt.show(block=False)
+
+    if store_tensor:
+        torch.save(render, dir + "/tensor.pt")
 
     return dir
 
@@ -58,15 +64,15 @@ def label_frame(path, text):
     draw.text((5, 5), text, fill=(255, 255, 255), font=font)
     return im
 
-def save_as_gif(dir, iter, base_ms = 50, end_ms = 1000):
-    frames = [label_frame(dir + f"/shu_{i}.png", str(i)) for i in range(iter)]
+def save_as_gif(dir, name, iter, base_ms = 50, end_ms = 1000, showper = 100):
+    frames = [label_frame(dir + f"/{name}_{i}.png", str(i)) for i in range(0, iter, showper)]
     frames.append(label_frame(dir + "/final.png", "final"))
 
-    durations = [base_ms] * iter
-    durations.append(end_ms)
+    durations = [base_ms] * len(frames)
+    durations[-1] = end_ms
 
     frames[0].save(
-        "output/gifs/shu.gif",
+        f"output/gifs/{name}.gif",
         save_all=True,
         append_images=frames[1:],
         duration=durations,
@@ -75,7 +81,8 @@ def save_as_gif(dir, iter, base_ms = 50, end_ms = 1000):
 
 if __name__ == "__main__":
     iterations = 1000
+    storeper = 20
 
-    dir = optimize("images/shuak.png", size = [256, 256], splats = 2000, iter = iterations, showper = 20, store_each = True)
+    dir = optimize("images/shuak.png", "shu", size = [256, 256], splats = 2000, iter = iterations, showper = 20, storeper = storeper, store_each = True)
 
-    save_as_gif(dir, iterations)
+    save_as_gif(dir, "shu", iterations, showper=storeper)

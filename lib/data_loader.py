@@ -68,3 +68,20 @@ def get_random_icons_as_strings(
         List of string paths to the selected PNG files
     """
     return [str(p) for p in get_random_icons(n, dataset_path, seed)]
+
+
+def get_operator_name(icon_path: Union[str, Path]) -> str:
+    """
+    Extract the operator name from an icon path.
+    
+    The operator name is the parent directory of the icon file.
+    For example: 'data/arknights-pfp-dataset/all/silverash/silverash-elite-2-icon.png'
+    returns 'silverash'
+    
+    Args:
+        icon_path: Path to an icon file (string or Path object)
+    
+    Returns:
+        Operator name as a string
+    """
+    return Path(icon_path).parent.name
